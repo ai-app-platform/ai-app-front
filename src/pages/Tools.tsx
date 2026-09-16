@@ -7,10 +7,15 @@ import { Wrench, Shield, Code2, Globe } from 'lucide-react';
 export default function Tools() {
   const [tools, setTools] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     toolsApi.getAll().then(res => { setTools(res.data); setLoading(false); });
   }, []);
+
+  const handleCreateTool = () => {
+    setShowCreateModal(true);
+  };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
