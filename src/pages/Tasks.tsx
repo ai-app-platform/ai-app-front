@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { tasksApi, projectsApi } from '../services/api';
 import { ListTodo, Plus, Filter, Clock, CheckCircle2, Play, XCircle, AlertTriangle } from 'lucide-react';
 
@@ -48,10 +49,10 @@ export default function Tasks() {
           <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>تسک‌ها</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>مدیریت و پیگیری تسک‌ها</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20">
+        <Link to="/tasks/new" className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20">
           <Plus size={16} />
           تسک جدید
-        </button>
+        </Link>
       </div>
 
       {/* Filters */}
@@ -84,9 +85,10 @@ export default function Tasks() {
         {filtered.map(task => {
           const status = getStatusConfig(task.status);
           return (
-            <div
+            <Link
               key={task.id}
-              className="p-4 rounded-xl transition-all hover:shadow-md cursor-pointer"
+              to={`/tasks/${task.id}`}
+              className="block p-4 rounded-xl transition-all hover:shadow-md cursor-pointer"
               style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}
             >
               <div className="flex items-start justify-between gap-4">
@@ -117,7 +119,7 @@ export default function Tasks() {
                   )}
                 </div>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>

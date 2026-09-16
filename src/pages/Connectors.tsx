@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { connectorsApi } from '../services/api';
 import { Plug, Plus, CheckCircle2, XCircle, RefreshCw, Globe, GitBranch, Database, Bell } from 'lucide-react';
 

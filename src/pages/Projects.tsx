@@ -36,10 +36,10 @@ export default function Projects() {
           <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>پروژه‌ها</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>مدیریت پروژه‌های پلتفرم</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20">
+        <Link to="/projects/new" className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20">
           <Plus size={16} />
           پروژه جدید
-        </button>
+        </Link>
       </div>
 
       {/* Search */}
@@ -63,7 +63,7 @@ export default function Projects() {
             <Link
               key={project.id}
               to={`/projects/${project.id}`}
-              className="group p-5 rounded-xl transition-all hover:scale-[1.01] hover:shadow-lg"
+              className="group block p-5 rounded-xl transition-all hover:scale-[1.01] hover:shadow-lg"
               style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}
             >
               <div className="flex items-start justify-between mb-3">

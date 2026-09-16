@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { gitApi } from '../services/api';
-import { GitBranch, GitCommit, GitPullRequest, Plus, RefreshCw, Check, Clock, AlertCircle } from 'lucide-react';
+import { GitBranch, GitCommit, GitPullRequest, Plus, RefreshCw, Check, Clock, AlertCircle, Eye, Code } from 'lucide-react';
+import Modal from '../components/ui/Modal';
+import { FormField, Input, Select, Button, Badge } from '../components/ui/FormComponents';
 
 export default function Git() {
   const [branches, setBranches] = useState<any[]>([]);
@@ -8,6 +10,10 @@ export default function Git() {
   const [prs, setPrs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('branches');
+  const [showCreateBranch, setShowCreateBranch] = useState(false);
+  const [showDiff, setShowDiff] = useState(false);
+  const [diffData, setDiffData] = useState<any>(null);
+  const [newBranch, setNewBranch] = useState({ name: '', baseBranch: 'main' });
 
   useEffect(() => {
     Promise.all([
@@ -30,6 +36,19 @@ export default function Git() {
     { key: 'prs', label: 'Pull Requestها', icon: GitPullRequest, count: prs.length },
   ];
 
+  const handleCreateBranch = async () => {
+    await gitApi.createBranch('p1', newBranch);
+    setBranches([...branches, { name: newBranch.name, isDefault: false, lastCommit: 'new', ahead: 0, behind: 0 }]);
+    setShowCreateBranch(false);
+    setNewBranch({ name: '', baseBranch: 'main' });
+  };
+
+  const handleViewDiff = async (branchName: string) => {
+    const res = await gitApi.getDiff('p1', branchName);
+    setDiffData(res.data);
+    setShowDiff(true);
+  };
+
   const getPrStatusBadge = (status: string) => {
     switch (status) {
       case 'open': return { label: 'باز', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', icon: Check };
@@ -51,7 +70,7 @@ export default function Git() {
             <RefreshCw size={14} />
             Fetch
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium">
+          <button onClick={() => setShowCreateBranch(true)} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium">
             <Plus size={14} />
             Branch جدید
           </button>
@@ -93,6 +112,11 @@ export default function Git() {
                   <span className="font-mono">{branch.lastCommit}</span>
                   {branch.ahead > 0 && <span className="text-green-500">↑{branch.ahead}</span>}
                   {branch.behind > 0 && <span className="text-red-500">↓{branch.behind}</span>}
+                  {!branch.isDefault && (
+                    <button onClick={() => handleViewDiff(branch.name)} className="flex items-center gap-1 text-indigo-500 hover:text-indigo-600">
+                      <Eye size={12} />Diff
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -143,6 +167,56 @@ export default function Git() {
           </div>
         )}
       </div>
+
+      {/* Create Branch Modal */}
+      <Modal isOpen={showCreateBranch} onClose={() => setShowCreateBranch(false)} title="ایجاد Branch جدید">
+        <div className="space-y-4">
+          <FormField label="نام Branch" required>
+            <Input value={newBranch.name} onChange={v => setNewBranch({ ...newBranch, name: v })} placeholder="feature/my-feature" />
+          </FormField>
+          <FormField label="Branch پایه">
+            <Select value={newBranch.baseBranch} onChange={v => setNewBranch({ ...newBranch, baseBranch: v })} options={branches.map(b => ({ value: b.name, label: b.name }))} />
+          </FormField>
+          <div className="flex gap-2 pt-2">
+            <Button onClick={handleCreateBranch}>ایجاد</Button>
+            <Button variant="ghost" onClick={() => setShowCreateBranch(false)}>انصراف</Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Diff Modal */}
+      <Modal isOpen={showDiff} onClose={() => setShowDiff(false)} title="نمایش Git Diff" size="xl">
+        {diffData && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+              <Badge variant="info">{diffData.branch}</Badge>
+              <span>←</span>
+              <Badge variant="default">{diffData.baseBranch}</Badge>
+            </div>
+            <div className="space-y-2">
+              {diffData.files?.map((file: any, i: number) => (
+                <div key={i} className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                  <div className="flex items-center gap-2">
+                    <Code size={14} className="text-indigo-500" />
+                    <span className="text-sm font-mono" style={{ color: 'var(--text-primary)' }}>{file.path}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="text-green-500">+{file.additions}</span>
+                    <span className="text-red-500">-{file.deletions}</span>
+                    <Badge variant={file.status === 'added' ? 'success' : 'warning'}>{file.status === 'added' ? 'جدید' : 'تغییر'}</Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Diff Content</h3>
+              <pre className="text-xs font-mono p-4 rounded-lg overflow-auto max-h-96" style={{ backgroundColor: '#1a1a2e', color: '#e2e8f0' }}>
+                {diffData.diffContent}
+              </pre>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

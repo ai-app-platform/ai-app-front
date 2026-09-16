@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Layers, FolderOpen, Terminal, RefreshCw, Play, Pause, HardDrive, Cpu, MemoryStick } from 'lucide-react';
 
 export default function Workspace() {
@@ -60,7 +61,7 @@ export default function Workspace() {
         </h2>
         <div className="space-y-3">
           {workspaces.map((ws, i) => (
-            <div key={i} className="flex items-center justify-between p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+            <Link key={i} to={`/workspace/${ws.name}`} className="flex items-center justify-between p-4 rounded-lg hover:scale-[1.01] transition-transform" style={{ backgroundColor: 'var(--bg-secondary)' }}>
               <div className="flex items-center gap-3">
                 <div className={`w-3 h-3 rounded-full ${
                   ws.status === 'active' ? 'bg-green-500 animate-pulse' :
@@ -86,7 +87,7 @@ export default function Workspace() {
                   <button className="p-1.5 rounded-lg text-green-500"><Play size={14} /></button>
                 )}
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

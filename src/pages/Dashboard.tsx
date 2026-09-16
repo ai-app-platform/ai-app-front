@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { dashboardApi } from '../services/api';
 import {
   FolderGit2, ListTodo, Bot, Wrench, Plug, TrendingUp,
@@ -130,21 +131,22 @@ export default function Dashboard() {
           </h2>
           <div className="space-y-2">
             {[
-              { label: 'ایجاد تسک جدید', icon: ListTodo, color: 'text-blue-500' },
-              { label: 'مدیریت Agentها', icon: Bot, color: 'text-purple-500' },
-              { label: 'بررسی Workspace', icon: FolderGit2, color: 'text-green-500' },
-              { label: 'جستجو در RAG', icon: Search, color: 'text-cyan-500' },
-              { label: 'تنظیمات اتصال‌دهنده', icon: Plug, color: 'text-rose-500' },
-              { label: 'مدیریت دانش', icon: BookOpen, color: 'text-amber-500' },
+              { label: 'ایجاد تسک جدید', icon: ListTodo, color: 'text-blue-500', path: '/tasks/new' },
+              { label: 'مدیریت Agentها', icon: Bot, color: 'text-purple-500', path: '/agents' },
+              { label: 'بررسی Workspace', icon: FolderGit2, color: 'text-green-500', path: '/workspace' },
+              { label: 'جستجو در RAG', icon: Search, color: 'text-cyan-500', path: '/rag' },
+              { label: 'تنظیمات اتصال‌دهنده', icon: Plug, color: 'text-rose-500', path: '/connectors' },
+              { label: 'مدیریت دانش', icon: BookOpen, color: 'text-amber-500', path: '/knowledge' },
             ].map((action, i) => (
-              <button
+              <Link
                 key={i}
+                to={action.path}
                 className="flex items-center gap-3 w-full p-3 rounded-lg text-right transition-all hover:scale-[1.01]"
                 style={{ backgroundColor: 'var(--bg-secondary)' }}
               >
                 <action.icon size={18} className={action.color} />
                 <span className="text-sm" style={{ color: 'var(--text-primary)' }}>{action.label}</span>
-              </button>
+              </Link>
             ))}
           </div>
         </div>

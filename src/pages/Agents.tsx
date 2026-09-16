@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { agentsApi } from '../services/api';
 import { Bot, Plus, Search, Cpu, Brain, Zap, Settings } from 'lucide-react';
 
@@ -49,17 +50,18 @@ export default function Agents() {
           <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Agentها</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>مدیریت Agentهای پلتفرم</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20">
+        <Link to="/agents/new" className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20">
           <Plus size={16} />
           Agent جدید
-        </button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {agents.map(agent => (
-          <div
+          <Link
             key={agent.id}
-            className="p-5 rounded-xl transition-all hover:shadow-md cursor-pointer"
+            to={`/agents/${agent.id}`}
+            className="block p-5 rounded-xl transition-all hover:shadow-md cursor-pointer"
             style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}
           >
             <div className="flex items-start justify-between mb-3">
@@ -96,7 +98,7 @@ export default function Agents() {
                 </span>
               ))}
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
