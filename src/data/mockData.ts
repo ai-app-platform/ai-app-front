@@ -1,6 +1,317 @@
 // Mock data for the AI App Platform - All entities
 
 export const mockData = {
+  // Detailed project data
+  projectDetails: {
+    p1: {
+      id: 'p1', name: 'پروژه فروشگاه آنلاین', description: 'پلتفرم فروشگاهی با قابلیت‌های هوش مصنوعی',
+      status: 'active', language: 'Java', gitUrl: 'github.com/org/shop-api',
+      createdAt: '۱۴۰۳/۰۷/۰۱', updatedAt: '۱۴۰۳/۰۹/۱۶',
+      connector: 'c1', workspace: 'shop-api-workspace',
+      teamId: 'team1', defaultWorkflow: 'w1',
+      stats: { totalFiles: 342, totalLines: 45600, totalTasks: 45, completedTasks: 32, activeAgents: 5 },
+      recentCommits: [
+        { sha: 'abc1234', message: 'feat: implement OAuth2 login', author: 'AI Agent', date: '۱۴۰۳/۰۹/۱۶' },
+        { sha: 'def5678', message: 'fix: resolve payment validation', author: 'AI Agent', date: '۱۴۰۳/۰۹/۱۵' },
+      ],
+      environment: { java: '21', springBoot: '4.0', database: 'PostgreSQL 15', cache: 'Redis 7' },
+    },
+    p2: {
+      id: 'p2', name: 'پروژه API Gateway', description: 'سرویس مدیریت API و مسیریابی',
+      status: 'active', language: 'Spring Boot', gitUrl: 'github.com/org/api-gateway',
+      createdAt: '۱۴۰۳/۰۶/۱۵', updatedAt: '۱۴۰۳/۰۹/۱۵',
+      connector: 'c2', workspace: 'api-gateway-workspace',
+      teamId: 'team2', defaultWorkflow: 'w1',
+      stats: { totalFiles: 156, totalLines: 21000, totalTasks: 28, completedTasks: 20, activeAgents: 4 },
+      recentCommits: [],
+      environment: { java: '21', springBoot: '4.0', database: 'MySQL 8', cache: 'Redis 7' },
+    },
+  },
+
+  // Detailed task data
+  taskDetails: {
+    t1: {
+      id: 't1', title: 'پیاده‌سازی OAuth2 Login', projectId: 'p1', status: 'completed', priority: 'high',
+      assignedAgents: ['a2', 'a6'], workflow: 'w1', createdAt: '۱۴۰۳/۰۹/۱۵', completedAt: '۱۴۰۳/۰۹/۱۶',
+      description: 'پیاده‌سازی کامل OAuth2 login flow با استفاده از Spring Security',
+      requirements: ['استفاده از Authorization Code flow', 'پشتیبانی از JWT', 'Integration با Google و GitHub'],
+      executionSteps: [
+        { step: 'planner', agent: 'a7', status: 'completed', output: 'Plan created with 5 steps' },
+        { step: 'architect', agent: 'a1', status: 'completed', output: 'Architecture design approved' },
+        { step: 'developer', agent: 'a2', status: 'completed', output: 'Code implemented' },
+        { step: 'security-reviewer', agent: 'a6', status: 'completed', output: 'Security review passed' },
+        { step: 'reviewer', agent: 'a4', status: 'completed', output: 'Code review approved' },
+      ],
+      gitInfo: { branch: 'feature/oauth2-login', commits: 5, filesChanged: 12 },
+      validation: { buildPassed: true, testsPassed: true, securityScan: true, codeQuality: 'A' },
+    },
+    t2: {
+      id: 't2', title: 'طراحی API پرداخت', projectId: 'p1', status: 'running', priority: 'high',
+      assignedAgents: ['a1', 'a2'], workflow: 'w1', createdAt: '۱۴۰۳/۰۹/۱۶', completedAt: null,
+      description: 'طراحی و پیاده‌سازی API برای پردازش پرداخت',
+      requirements: ['پشتیبانی از چندین gateway', 'Idempotency', 'Webhook handling'],
+      executionSteps: [
+        { step: 'planner', agent: 'a7', status: 'completed', output: 'Plan created' },
+        { step: 'architect', agent: 'a1', status: 'completed', output: 'Design approved' },
+        { step: 'developer', agent: 'a2', status: 'running', output: 'Implementation in progress...' },
+      ],
+      gitInfo: { branch: 'feature/payment-api', commits: 3, filesChanged: 8 },
+      validation: { buildPassed: true, testsPassed: null, securityScan: null, codeQuality: null },
+    },
+  },
+
+  // Detailed agent data
+  agentDetails: {
+    a1: {
+      id: 'a1', name: 'معمار سیستم', type: 'architect', status: 'available', model: 'GPT-4',
+      skills: ['architecture', 'design-patterns', 'system-design'], roles: ['architect'],
+      description: 'تحلیل و طراحی معماری سیستم', version: '1.2.0',
+      configuration: { temperature: 0.3, maxTokens: 8000, topP: 0.9 },
+      allowedTools: ['file.read', 'search_codebase', 'get_project_overview'],
+      executionPolicy: { maxRetries: 3, timeout: 300, approvalRequired: false },
+      promptRef: 'pr1', createdAt: '۱۴۰۳/۰۶/۰۱', lastUsed: '۱۴۰۳/۰۹/۱۶',
+      stats: { totalTasks: 45, successRate: 96, avgDuration: '2.5 دقیقه' },
+    },
+    a2: {
+      id: 'a2', name: 'توسعه‌دهنده Backend', type: 'developer', status: 'busy', model: 'GPT-4',
+      skills: ['java', 'spring-boot', 'api-design'], roles: ['developer'],
+      description: 'پیاده‌سازی سرویس‌های Backend', version: '1.1.0',
+      configuration: { temperature: 0.2, maxTokens: 16000, topP: 0.95 },
+      allowedTools: ['file.read', 'file.write', 'search_codebase', 'run_tests', 'build_project'],
+      executionPolicy: { maxRetries: 2, timeout: 600, approvalRequired: false },
+      promptRef: 'pr2', createdAt: '۱۴۰۳/۰۶/۰۱', lastUsed: '۱۴۰۳/۰۹/۱۶',
+      stats: { totalTasks: 78, successRate: 92, avgDuration: '4.2 دقیقه' },
+    },
+  },
+
+  // Detailed connector data
+  connectorDetails: {
+    c1: {
+      id: 'c1', name: 'GitHub - فروشگاه', provider: 'github', type: 'git', status: 'connected',
+      repository: 'org/shop-api', endpoint: 'https://api.github.com',
+      credentialRef: 'vault/github/shop-api', adapter: 'rest',
+      capabilities: ['repository.read', 'file.read', 'file.write', 'commit.create', 'push', 'pull_request.create'],
+      permissions: { read: true, write: true },
+      healthCheck: { status: 'healthy', lastCheck: '۱۴۰۳/۰۹/۱۶ - ۱۴:۳۰', latency: 45 },
+      createdAt: '۱۴۰۳/۰۷/۰۱', lastSync: '۱۴۰۳/۰۹/۱۶ - ۱۴:۲۵',
+    },
+  },
+
+  // Detailed tool data
+  toolDetails: {
+    tool1: {
+      id: 'tool1', name: 'file.read', type: 'INTERNAL', description: 'خواندن فایل از Workspace',
+      status: 'active', version: '1.0.0', capabilities: ['file.read'],
+      inputSchema: { path: 'string', encoding: 'string (optional)' },
+      outputSchema: { content: 'string', encoding: 'string', size: 'number' },
+      permissions: { required: true, roles: ['developer', 'reviewer', 'architect'] },
+      executionPolicy: { timeout: 30, maxRetries: 1 },
+      usageStats: { totalCalls: 1250, avgLatency: '12ms', successRate: 99.8 },
+    },
+  },
+
+  // Detailed knowledge data
+  knowledgeDetails: {
+    k1: {
+      id: 'k1', title: 'استانداردهای کدنویسی Java', scope: 'platform', version: '2.1.0',
+      category: 'coding-standards', lastUpdated: '۱۴۰۳/۰۸/۲۰', status: 'active',
+      content: '# استانداردهای کدنویسی Java\n\n## نام‌گذاری\n- کلاس‌ها: PascalCase\n- متدها: camelCase\n- ثابت‌ها: UPPER_SNAKE_CASE\n\n## ساختار\n- حداکثر طول خط: 120 کاراکتر\n- indentation: 4 فاصله\n- brace style: K&R',
+      references: ['Oracle Java Standards', 'Google Java Style Guide'],
+      usedByProjects: ['p1', 'p2', 'p5'],
+      changeHistory: [
+        { version: '2.1.0', date: '۱۴۰۳/۰۸/۲۰', changes: 'افزودن بخش Record Classes' },
+        { version: '2.0.0', date: '۱۴۰۳/۰۷/۱۵', changes: 'به‌روزرسانی برای Java 21' },
+      ],
+    },
+  },
+
+  // Detailed workflow data
+  workflowDetails: {
+    w1: {
+      id: 'w1', name: 'توسعه نرم‌افزار', description: 'Workflow کامل توسعه از طراحی تا PR',
+      steps: ['planner', 'architect', 'developer', 'tester', 'reviewer'], status: 'active', version: '2.0.0',
+      allowParallel: true, validation: { required: true, autoApprove: false },
+      configuration: {
+        planning: { enabled: true, maxIterations: 3 },
+        execution: { allowRetry: true, maxRetries: 2 },
+        approval: { required: false, approvers: [] },
+      },
+      stepDetails: [
+        { name: 'planner', description: 'تحلیل تسک و ایجاد Plan', timeout: 120 },
+        { name: 'architect', description: 'طراحی معماری', timeout: 180 },
+        { name: 'developer', description: 'پیاده‌سازی کد', timeout: 600 },
+        { name: 'tester', description: 'نوشتن و اجرای تست', timeout: 300 },
+        { name: 'reviewer', description: 'بازبینی کد', timeout: 180 },
+      ],
+    },
+  },
+
+  // Detailed role data
+  roleDetails: {
+    r1: {
+      id: 'r1', name: 'معمار', description: 'مسئول طراحی معماری سیستم',
+      constraints: ['فقط طراحی', 'بدون تغییر مستقیم کد'],
+      capabilities: ['architecture-analysis', 'design-review'],
+      allowedTools: ['file.read', 'search_codebase', 'get_project_overview'],
+      promptTemplate: 'شما یک معمار سیستم با تجربه هستید...',
+      assignedAgents: ['a1'],
+    },
+  },
+
+  // Detailed skill data
+  skillDetails: {
+    s1: {
+      id: 's1', name: 'Java', category: 'language', level: 'expert',
+      description: 'تسلط کامل بر Java 21',
+      subSkills: ['Records', 'Pattern Matching', 'Virtual Threads', 'Sealed Classes'],
+      usedByAgents: ['a1', 'a2'],
+      assessment: { score: 95, lastAssessed: '۱۴۰۳/۰۹/۰۱' },
+    },
+  },
+
+  // Detailed team data
+  teamDetails: {
+    team1: {
+      id: 'team1', projectId: 'p1', name: 'تیم پروژه فروشگاه', version: '1.3.0',
+      agents: [
+        { agentId: 'a1', role: 'architect', enabled: true, configuration: {} },
+        { agentId: 'a2', role: 'developer', enabled: true, configuration: {} },
+        { agentId: 'a3', role: 'developer', enabled: true, configuration: {} },
+        { agentId: 'a4', role: 'reviewer', enabled: true, configuration: {} },
+        { agentId: 'a5', role: 'tester', enabled: true, configuration: {} },
+        { agentId: 'a6', role: 'security-reviewer', enabled: true, configuration: {} },
+      ],
+      createdAt: '۱۴۰۳/۰۷/۰۱', lastModified: '۱۴۰۳/۰۹/۱۰',
+      workflow: 'w1',
+    },
+  },
+
+  // Detailed memory data
+  memoryDetails: {
+    m1: {
+      id: 'm1', projectId: 'p1', taskId: 't1', type: 'task-state',
+      content: 'OAuth2 implementation completed. Using Spring Security with JWT.',
+      timestamp: '۱۴۰۳/۰۹/۱۶', metadata: { agent: 'a2', step: 'developer', iteration: 1 },
+      promoted: true, ragIndexed: true,
+    },
+  },
+
+  // Detailed prompt data
+  promptDetails: {
+    pr1: {
+      id: 'pr1', name: 'System Prompt - معمار', version: '1.2.0', type: 'system', status: 'active',
+      variables: ['project_context', 'task_description'],
+      template: 'شما یک معمار سیستم حرفه‌ای هستید.\n\n## Context پروژه:\n{{project_context}}\n\n## تسک:\n{{task_description}}\n\nلطفاً معماری مناسب را طراحی کنید.',
+      usedByAgents: ['a1'],
+      modelConfig: { model: 'GPT-4', temperature: 0.3, maxTokens: 8000 },
+      changeHistory: [
+        { version: '1.2.0', date: '۱۴۰۳/۰۹/۰۱', changes: 'افزودن بخش امنیت' },
+        { version: '1.1.0', date: '۱۴۰۳/۰۸/۱۵', changes: 'بهینه‌سازی ساختار' },
+      ],
+    },
+  },
+
+  // Git diff data
+  gitDiff: {
+    branch: 'feature/oauth2-login',
+    baseBranch: 'main',
+    files: [
+      { path: 'src/main/java/com/shop/security/OAuth2Config.java', status: 'added', additions: 45, deletions: 0 },
+      { path: 'src/main/java/com/shop/security/JwtTokenProvider.java', status: 'added', additions: 78, deletions: 0 },
+      { path: 'src/main/resources/application.yml', status: 'modified', additions: 12, deletions: 3 },
+      { path: 'pom.xml', status: 'modified', additions: 8, deletions: 2 },
+    ],
+    diffContent: `@@ -0,0 +1,45 @@
++package com.shop.security;
++
++import org.springframework.context.annotation.Configuration;
++import org.springframework.security.config.annotation.web.builders.HttpSecurity;
++
++@Configuration
++public class OAuth2Config {
++    
++    public void configure(HttpSecurity http) throws Exception {
++        http.oauth2Login()
++            .authorizationEndpoint()
++            .baseUri("/oauth2/authorize")
++            .and()
++            .redirectionEndpoint()
++            .baseUri("/oauth2/callback");
++    }
++}`,
+  },
+
+  // RAG detailed results
+  ragDetailedResults: [
+    {
+      id: 'r1', source: 'PaymentService.java', relevance: 0.95, content: 'Payment authorization logic with OAuth2 token validation...',
+      type: 'code', lineRange: '45-78', metadata: { module: 'payment', language: 'java', lastModified: '۱۴۰۳/۰۹/۱۵' },
+      chunks: [
+        { text: 'public PaymentResult authorizePayment(PaymentRequest request) {', score: 0.98 },
+        { text: 'TokenValidator.validate(request.getAuthToken());', score: 0.92 },
+      ],
+    },
+  ],
+
+  // Codebase detailed
+  codebaseDetailed: {
+    symbol: {
+      name: 'PaymentService', type: 'class', file: 'PaymentService.java', line: 15,
+      methods: ['authorizePayment', 'processRefund', 'getPaymentStatus'],
+      dependencies: ['PaymentGateway', 'TransactionRepository', 'NotificationService'],
+      callers: ['PaymentController', 'OrderService'],
+    },
+    fileContent: `package com.shop.payment;
+
+@Service
+public class PaymentService {
+    
+    @Autowired
+    private PaymentGateway gateway;
+    
+    public PaymentResult authorizePayment(PaymentRequest request) {
+        // Implementation
+    }
+}`,
+  },
+
+  // Context detailed
+  contextDetailed: {
+    assembledContext: {
+      taskId: 't1', assembledAt: '۱۴۰۳/۰۹/۱۶ - ۱۴:۳۰',
+      sections: [
+        { type: 'system-prompt', tokens: 1200, source: 'Prompt Template' },
+        { type: 'platform-knowledge', tokens: 2500, source: '3 documents' },
+        { type: 'project-knowledge', tokens: 1800, source: '2 documents' },
+        { type: 'code-context', tokens: 4500, source: '8 files' },
+        { type: 'memory', tokens: 800, source: '2 entries' },
+        { type: 'rag-results', tokens: 1200, source: '3 results' },
+        { type: 'tool-definitions', tokens: 500, source: '5 tools' },
+      ],
+      totalTokens: 12500, maxTokens: 32000,
+    },
+  },
+
+  // Settings data
+  settings: {
+    database: {
+      type: 'PostgreSQL', version: '15.4', host: 'localhost', port: 5432,
+      name: 'ai_platform', status: 'connected', tables: 45, size: '2.3 GB',
+      lastBackup: '۱۴۰۳/۰۹/۱۶ - ۰۳:۰۰',
+    },
+    apiKeys: [
+      { id: 'key1', name: 'OpenAI API Key', provider: 'openai', status: 'active', lastUsed: '۱۴۰۳/۰۹/۱۶', masked: 'sk-...XyZ123' },
+      { id: 'key2', name: 'Anthropic API Key', provider: 'anthropic', status: 'active', lastUsed: '۱۴۰۳/۰۹/۱۵', masked: 'sk-ant-...AbC456' },
+      { id: 'key3', name: 'GitHub Token', provider: 'github', status: 'active', lastUsed: '۱۴۰۳/۰۹/۱۶', masked: 'ghp_...789Def' },
+    ],
+    infrastructure: {
+      langgraph: { status: 'active', version: '0.2.0', instances: 2, cpu: '28%', memory: '1.2 GB' },
+      rag: { status: 'active', engine: 'Qdrant', version: '1.7.0', collections: 5, vectors: 125000 },
+      codebase: { status: 'active', parser: 'Tree-sitter', version: '0.21.0', indexedProjects: 5 },
+      contextEngine: { status: 'active', strategy: 'local-first', cacheSize: '512 MB', hitRate: '94%' },
+    },
+  },
+
   dashboard: {
     stats: {
       totalProjects: 12,

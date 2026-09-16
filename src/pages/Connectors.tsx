@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { connectorsApi } from '../services/api';
 import { Plug, Plus, CheckCircle2, XCircle, RefreshCw, Globe, GitBranch, Database, Bell } from 'lucide-react';
 
@@ -30,15 +31,15 @@ export default function Connectors() {
           <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>اتصال‌دهنده‌ها</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>مدیریت اتصال به سیستم‌های خارجی</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20">
+        <Link to="/connectors/new" className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20">
           <Plus size={16} />
           اتصال جدید
-        </button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {connectors.map(connector => (
-          <div key={connector.id} className="p-5 rounded-xl transition-all hover:shadow-md" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+          <Link key={connector.id} to={`/connectors/${connector.id}`} className="block p-5 rounded-xl transition-all hover:shadow-md" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
@@ -81,7 +82,7 @@ export default function Connectors() {
                 تست اتصال
               </button>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

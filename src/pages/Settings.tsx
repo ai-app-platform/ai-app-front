@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { Settings, Palette, Globe, Bell, Shield, Database, Key, Server } from 'lucide-react';
 
 export default function SettingsPage() {
   const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('general');
 
   const sections = [
@@ -31,7 +33,12 @@ export default function SettingsPage() {
             {sections.map(section => (
               <button
                 key={section.key}
-                onClick={() => setActiveSection(section.key)}
+                onClick={() => {
+                  if (section.key === 'database') navigate('/settings/database');
+                  else if (section.key === 'api') navigate('/settings/api-keys');
+                  else if (section.key === 'infrastructure') navigate('/settings/infrastructure');
+                  else setActiveSection(section.key);
+                }}
                 className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-right text-sm transition-all ${
                   activeSection === section.key
                     ? 'bg-indigo-600 text-white'

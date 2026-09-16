@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { toolsApi } from '../services/api';
 import EntityPage from '../components/EntityPage';
 import { Wrench, Shield, Code2, Globe } from 'lucide-react';
@@ -26,8 +27,9 @@ export default function Tools() {
       items={tools}
       loading={loading}
       addLabel="ابزار جدید"
+      onAdd={() => window.location.href = '/tools/new'}
       renderItem={(tool) => (
-        <div key={tool.id} className="p-5 rounded-xl transition-all hover:shadow-md" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+        <Link key={tool.id} to={`/tools/${tool.id}`} className="block p-5 rounded-xl transition-all hover:shadow-md" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
               {getTypeIcon(tool.type)}
@@ -49,7 +51,7 @@ export default function Tools() {
               <span className="text-xs text-green-500">فعال</span>
             </div>
           </div>
-        </div>
+        </Link>
       )}
     />
   );

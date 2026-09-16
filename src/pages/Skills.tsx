@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { skillsApi } from '../services/api';
-import { Zap, Code2, Database, Shield, TestTube, Wrench } from 'lucide-react';
+import { Zap, Code2, Database, Shield, TestTube, Wrench, Plus } from 'lucide-react';
 
 export default function Skills() {
   const [skills, setSkills] = useState<any[]>([]);
@@ -35,14 +36,20 @@ export default function Skills() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>مهارت‌ها</h1>
-        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>مهارت‌ها و تخصص‌های قابل استفاده</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>مهارت‌ها</h1>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>مهارت‌ها و تخصص‌های قابل استفاده</p>
+        </div>
+        <Link to="/skills/new" className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20">
+          <Plus size={16} />
+          مهارت جدید
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {skills.map(skill => (
-          <div key={skill.id} className="p-4 rounded-xl transition-all hover:shadow-md" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+          <Link key={skill.id} to={`/skills/${skill.id}`} className="block p-4 rounded-xl transition-all hover:shadow-md" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
                 {getCategoryIcon(skill.category)}
@@ -53,7 +60,7 @@ export default function Skills() {
               </div>
             </div>
             <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{skill.description}</p>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

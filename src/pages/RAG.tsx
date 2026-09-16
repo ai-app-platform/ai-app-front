@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { ragApi } from '../services/api';
-import { Search, Database, FileText, Code2, BookOpen, RefreshCw, BarChart3 } from 'lucide-react';
+import { Search, Database, FileText, Code2, BookOpen, RefreshCw, BarChart3, Eye, ExternalLink } from 'lucide-react';
+import { Badge } from '../components/ui/FormComponents';
+import Modal from '../components/ui/Modal';
 
 export default function RAG() {
   const [indexStatus, setIndexStatus] = useState<any>(null);
@@ -8,9 +10,14 @@ export default function RAG() {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
+  const [selectedResult, setSelectedResult] = useState<any>(null);
+  const [showDetail, setShowDetail] = useState(false);
 
   useEffect(() => {
-    ragApi.getIndexStatus('p1').then(res => { setIndexStatus(res.data); setLoading(false); });
+    ragApi.getIndexStatus('p1').then(res => {
+      setIndexStatus(res.data);
+      setLoading(false);
+    });
   }, []);
 
   const handleSearch = async () => {
@@ -19,6 +26,11 @@ export default function RAG() {
     const res = await ragApi.search(searchQuery);
     setSearchResults(res.data);
     setSearching(false);
+  };
+
+  const handleViewDetail = (result: any) => {
+    setSelectedResult(result);
+    setShowDetail(true);
   };
 
   if (loading) return <div className="animate-pulse space-y-4"><div className="h-10 w-48 rounded" style={{ backgroundColor: 'var(--bg-card)' }}></div><div className="h-60 rounded-xl" style={{ backgroundColor: 'var(--bg-card)' }}></div></div>;
@@ -81,21 +93,166 @@ export default function RAG() {
 
         {searchResults.length > 0 && (
           <div className="mt-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                نتایج جستجو ({searchResults.length})
+              </h3>
+              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                برای مشاهده جزئیات روی هر نتیجه کلیک کنید
+              </span>
+            </div>
             {searchResults.map(result => (
-              <div key={result.id} className="p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-                <div className="flex items-center gap-2 mb-1">
-                  {result.type === 'code' ? <Code2 size={14} className="text-blue-500" /> : <BookOpen size={14} className="text-green-500" />}
-                  <span className="text-sm font-medium font-mono" style={{ color: 'var(--text-primary)' }}>{result.source}</span>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
-                    {(result.relevance * 100).toFixed(0)}% مرتبط
-                  </span>
+              <div
+                key={result.id}
+                className="p-4 rounded-lg transition-all hover:shadow-md cursor-pointer"
+                style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}
+                onClick={() => handleViewDetail(result)}
+              >
+                <div className="flex items-start gap-3">
+                  {result.type === 'code' ? (
+                    <Code2 size={20} className="text-blue-500 shrink-0 mt-1" />
+                  ) : (
+                    <BookOpen size={20} className="text-green-500 shrink-0 mt-1" />
+                  )}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="font-semibold text-sm font-mono" style={{ color: 'var(--text-primary)' }}>
+                        {result.source}
+                      </span>
+                      <Badge variant={result.type === 'code' ? 'info' : 'success'}>
+                        {result.type === 'code' ? 'کد' : 'دانش'}
+                      </Badge>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                        {(result.relevance * 100).toFixed(0)}% مرتبط
+                      </span>
+                    </div>
+                    <p className="text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>
+                      {result.content}
+                    </p>
+                    {result.lineRange && (
+                      <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                        خطوط: {result.lineRange}
+                      </div>
+                    )}
+                    {result.chunks && result.chunks.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        <div className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
+                          بخش‌های مرتبط:
+                        </div>
+                        {result.chunks.slice(0, 2).map((chunk: any, i: number) => (
+                          <div key={i} className="text-xs p-2 rounded" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+                            <span className="font-mono" style={{ color: 'var(--text-secondary)' }}>
+                              {chunk.text}
+                            </span>
+                            <span className="text-xs mr-2" style={{ color: 'var(--text-muted)' }}>
+                              ({(chunk.score * 100).toFixed(0)}%)
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <button className="p-2 rounded-lg hover:bg-opacity-80 transition-colors shrink-0" style={{ color: 'var(--text-muted)' }}>
+                    <Eye size={16} />
+                  </button>
                 </div>
-                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{result.content}</p>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Detail Modal */}
+      <Modal isOpen={showDetail} onClose={() => setShowDetail(false)} title="جزئیات نتیجه RAG" size="xl">
+        {selectedResult && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              {selectedResult.type === 'code' ? (
+                <Code2 size={24} className="text-blue-500" />
+              ) : (
+                <BookOpen size={24} className="text-green-500" />
+              )}
+              <div>
+                <h3 className="font-bold text-lg font-mono" style={{ color: 'var(--text-primary)' }}>
+                  {selectedResult.source}
+                </h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge variant={selectedResult.type === 'code' ? 'info' : 'success'}>
+                    {selectedResult.type === 'code' ? 'کد' : 'دانش'}
+                  </Badge>
+                  <span className="text-sm px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                    {(selectedResult.relevance * 100).toFixed(0)}% مرتبط
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+              <div className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+                محتوا:
+              </div>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                {selectedResult.content}
+              </p>
+            </div>
+
+            {selectedResult.lineRange && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                  <div className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>موقعیت</div>
+                  <div className="text-sm font-mono" style={{ color: 'var(--text-primary)' }}>
+                    خطوط {selectedResult.lineRange}
+                  </div>
+                </div>
+                {selectedResult.metadata && (
+                  <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                    <div className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>ماژول</div>
+                    <div className="text-sm" style={{ color: 'var(--text-primary)' }}>
+                      {selectedResult.metadata.module}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {selectedResult.chunks && selectedResult.chunks.length > 0 && (
+              <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                <div className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>
+                  بخش‌های مرتبط ({selectedResult.chunks.length})
+                </div>
+                <div className="space-y-2">
+                  {selectedResult.chunks.map((chunk: any, i: number) => (
+                    <div key={i} className="p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
+                          بخش {i + 1}
+                        </span>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                          {(chunk.score * 100).toFixed(0)}% مرتبط
+                        </span>
+                      </div>
+                      <pre className="text-xs font-mono whitespace-pre-wrap" style={{ color: 'var(--text-secondary)' }}>
+                        {chunk.text}
+                      </pre>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedResult.metadata && (
+              <div className="p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                <div className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+                  Metadata
+                </div>
+                <pre className="text-xs font-mono" style={{ color: 'var(--text-secondary)' }}>
+                  {JSON.stringify(selectedResult.metadata, null, 2)}
+                </pre>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

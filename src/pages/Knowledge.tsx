@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { knowledgeApi } from '../services/api';
 import { BookOpen, Plus, FileText, Shield, Code2, Layers, Globe } from 'lucide-react';
 
@@ -31,10 +32,10 @@ export default function Knowledge() {
           <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>دانش</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>مدیریت دانش و استانداردهای پلتفرم و پروژه</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20">
+        <Link to="/knowledge/new" className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20">
           <Plus size={16} />
           دانش جدید
-        </button>
+        </Link>
       </div>
 
       {/* Scope Tabs */}
@@ -46,7 +47,7 @@ export default function Knowledge() {
 
       <div className="space-y-3">
         {knowledge.map(item => (
-          <div key={item.id} className="p-4 rounded-xl transition-all hover:shadow-md cursor-pointer" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+          <Link key={item.id} to={`/knowledge/${item.id}`} className="block p-4 rounded-xl transition-all hover:shadow-md cursor-pointer" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
                 {getCategoryIcon(item.category)}
@@ -67,7 +68,7 @@ export default function Knowledge() {
               </div>
               <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">فعال</span>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

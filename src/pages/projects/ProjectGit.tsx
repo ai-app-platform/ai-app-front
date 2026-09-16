@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
-import { gitApi } from '../services/api';
-import { GitBranch, GitCommit, GitPullRequest, Plus, RefreshCw, Check, Clock, AlertCircle, Eye, Code } from 'lucide-react';
-import Modal from '../components/ui/Modal';
-import { FormField, Input, Select, Button, Badge } from '../components/ui/FormComponents';
+import { useOutletContext } from 'react-router-dom';
+import { gitApi } from '../../services/api';
+import { GitBranch, GitCommit, GitPullRequest, Plus, Eye, Code } from 'lucide-react';
+import { Badge } from '../../components/ui/FormComponents';
+import Modal from '../../components/ui/Modal';
+import { FormField, Input, Select, Button } from '../../components/ui/FormComponents';
 
-export default function Git() {
+export default function ProjectGit() {
+  const { project } = useOutletContext<{ project: any }>();
   const [branches, setBranches] = useState<any[]>([]);
   const [commits, setCommits] = useState<any[]>([]);
   const [prs, setPrs] = useState<any[]>([]);
@@ -16,70 +19,52 @@ export default function Git() {
   const [newBranch, setNewBranch] = useState({ name: '', baseBranch: 'main' });
 
   useEffect(() => {
-    Promise.all([
-      gitApi.getBranches('p1'),
-      gitApi.getCommits('p1'),
-      gitApi.getPullRequests('p1'),
-    ]).then(([branchesRes, commitsRes, prsRes]) => {
-      setBranches(branchesRes.data);
-      setCommits(commitsRes.data);
-      setPrs(prsRes.data);
-      setLoading(false);
-    });
-  }, []);
-
-  if (loading) return <div className="animate-pulse space-y-4"><div className="h-10 w-48 rounded" style={{ backgroundColor: 'var(--bg-card)' }}></div><div className="h-60 rounded-xl" style={{ backgroundColor: 'var(--bg-card)' }}></div></div>;
-
-  const tabs = [
-    { key: 'branches', label: 'Branchها', icon: GitBranch, count: branches.length },
-    { key: 'commits', label: 'Commitها', icon: GitCommit, count: commits.length },
-    { key: 'prs', label: 'Pull Requestها', icon: GitPullRequest, count: prs.length },
-  ];
+    if (project?.id) {
+      Promise.all([
+        gitApi.getBranches(project.id),
+        gitApi.getCommits(project.id),
+        gitApi.getPullRequests(project.id),
+      ]).then(([branchesRes, commitsRes, prsRes]) => {
+        setBranches(branchesRes.data);
+        setCommits(commitsRes.data);
+        setPrs(prsRes.data);
+        setLoading(false);
+      });
+    }
+  }, [project?.id]);
 
   const handleCreateBranch = async () => {
-    await gitApi.createBranch('p1', newBranch);
+    await gitApi.createBranch(project.id, newBranch);
     setBranches([...branches, { name: newBranch.name, isDefault: false, lastCommit: 'new', ahead: 0, behind: 0 }]);
     setShowCreateBranch(false);
     setNewBranch({ name: '', baseBranch: 'main' });
   };
 
   const handleViewDiff = async (branchName: string) => {
-    const res = await gitApi.getDiff('p1', branchName);
+    const res = await gitApi.getDiff(project.id, branchName);
     setDiffData(res.data);
     setShowDiff(true);
   };
 
-  const getPrStatusBadge = (status: string) => {
-    switch (status) {
-      case 'open': return { label: 'باز', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', icon: Check };
-      case 'review': return { label: 'در بازبینی', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', icon: Clock };
-      case 'merged': return { label: 'ادغام‌شده', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400', icon: GitPullRequest };
-      default: return { label: status, color: 'bg-gray-100 text-gray-700', icon: AlertCircle };
-    }
-  };
+  if (loading) return <div className="animate-pulse h-60 rounded-xl" style={{ backgroundColor: 'var(--bg-card)' }}></div>;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>مدیریت Git</h1>
-          <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Branch، Commit و Pull Request</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
-            <RefreshCw size={14} />
-            Fetch
-          </button>
-          <button onClick={() => setShowCreateBranch(true)} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium">
-            <Plus size={14} />
-            Branch جدید
-          </button>
-        </div>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>مدیریت Git</h2>
+        <button onClick={() => setShowCreateBranch(true)} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20">
+          <Plus size={14} />
+          Branch جدید
+        </button>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-1 p-1 rounded-xl" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-        {tabs.map(tab => (
+        {[
+          { key: 'branches', label: 'Branchها', icon: GitBranch, count: branches.length },
+          { key: 'commits', label: 'Commitها', icon: GitCommit, count: commits.length },
+          { key: 'prs', label: 'Pull Requestها', icon: GitPullRequest, count: prs.length },
+        ].map(tab => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
@@ -146,24 +131,23 @@ export default function Git() {
 
         {activeTab === 'prs' && (
           <div className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
-            {prs.map((pr, i) => {
-              const status = getPrStatusBadge(pr.status);
-              return (
-                <div key={i} className="flex items-center justify-between p-4">
-                  <div className="flex items-center gap-3">
-                    <GitPullRequest size={16} className="text-indigo-500" />
-                    <div>
-                      <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{pr.title}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>{pr.branch}</span>
-                        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>• {pr.comments} نظر</span>
-                      </div>
+            {prs.map((pr, i) => (
+              <div key={i} className="flex items-center justify-between p-4">
+                <div className="flex items-center gap-3">
+                  <GitPullRequest size={16} className="text-indigo-500" />
+                  <div>
+                    <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{pr.title}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>{pr.branch}</span>
+                      <span className="text-xs" style={{ color: 'var(--text-muted)' }}>• {pr.comments} نظر</span>
                     </div>
                   </div>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${status.color}`}>{status.label}</span>
                 </div>
-              );
-            })}
+                <Badge variant={pr.status === 'open' ? 'success' : pr.status === 'review' ? 'warning' : 'info'}>
+                  {pr.status === 'open' ? 'باز' : pr.status === 'review' ? 'در بازبینی' : 'ادغام‌شده'}
+                </Badge>
+              </div>
+            ))}
           </div>
         )}
       </div>

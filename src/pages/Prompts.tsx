@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { promptsApi } from '../services/api';
 import { FileText, Plus, Edit, Copy, Eye } from 'lucide-react';
 
@@ -19,15 +20,15 @@ export default function Prompts() {
           <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Promptها</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>مدیریت Template و Promptهای Agentها</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20">
+        <Link to="/prompts/new" className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20">
           <Plus size={16} />
           Prompt جدید
-        </button>
+        </Link>
       </div>
 
       <div className="space-y-3">
         {prompts.map(prompt => (
-          <div key={prompt.id} className="p-4 rounded-xl transition-all hover:shadow-md" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+          <Link key={prompt.id} to={`/prompts/${prompt.id}`} className="block p-4 rounded-xl transition-all hover:shadow-md" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
@@ -59,7 +60,7 @@ export default function Prompts() {
                 </span>
               ))}
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

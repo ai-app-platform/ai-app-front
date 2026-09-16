@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { teamsApi, projectsApi, agentsApi } from '../services/api';
-import { Users, Bot, Shield, ChevronDown, Check, X } from 'lucide-react';
+import { Users, Bot, Shield, ChevronDown, Check, X, Plus } from 'lucide-react';
 
 export default function Teams() {
   const [teams, setTeams] = useState<any[]>([]);
@@ -24,14 +25,20 @@ export default function Teams() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>تیم‌ها</h1>
-        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>مدیریت تیم Agentهای پروژه‌ها</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>تیم‌ها</h1>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>مدیریت تیم Agentهای پروژه‌ها</p>
+        </div>
+        <Link to="/teams/new" className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20">
+          <Plus size={16} />
+          تیم جدید
+        </Link>
       </div>
 
       <div className="space-y-4">
         {teams.map(team => (
-          <div key={team.id} className="p-5 rounded-xl" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+          <Link key={team.id} to={`/teams/${team.id}`} className="block p-5 rounded-xl hover:shadow-md transition-all" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
@@ -65,7 +72,7 @@ export default function Teams() {
                 </div>
               ))}
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
