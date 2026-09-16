@@ -4,6 +4,10 @@ import { connectorsApi, toolsApi, knowledgeApi, workflowsApi, rolesApi, skillsAp
 import { ArrowRight, Plus, Edit, Trash2, Eye, Copy, RefreshCw, Database, Key, Server, CheckCircle2, XCircle } from 'lucide-react';
 import { FormField, Input, Select, Button, Badge, Tabs } from '../../components/ui/FormComponents';
 import Modal from '../../components/ui/Modal';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { GripVertical } from 'lucide-react';
 import { useEffect } from 'react';
 
 // ==================== CONNECTOR DETAIL ====================
@@ -307,6 +311,72 @@ export function KnowledgeCreate() {
   );
 }
 
+// ==================== SORTABLE STEP COMPONENT ====================
+function SortableStep({ step, index }: { step: any; index: number }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: step.name,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center gap-4 p-4 rounded-lg cursor-move"
+      {...attributes}
+      {...listeners}
+    >
+      <GripVertical size={20} style={{ color: 'var(--text-muted)' }} className="cursor-grab" />
+      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shrink-0">
+        {index + 1}
+      </div>
+      <div className="flex-1">
+        <h3 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{step.name}</h3>
+        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{step.description}</p>
+      </div>
+      <span className="text-xs shrink-0" style={{ color: 'var(--text-muted)' }}>Timeout: {step.timeout}s</span>
+    </div>
+  );
+}
+
+function SortableSteps({ steps }: { steps: any[] }) {
+  const [items, setItems] = useState(steps);
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setItems((items) => {
+        const oldIndex = items.findIndex((item) => item.name === active.id);
+        const newIndex = items.findIndex((item) => item.name === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  }
+
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={items.map(item => item.name)} strategy={verticalListSortingStrategy}>
+        <div className="space-y-3">
+          {items.map((step, i) => (
+            <div key={step.name} className="rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+              <SortableStep step={step} index={i} />
+            </div>
+          ))}
+        </div>
+      </SortableContext>
+    </DndContext>
+  );
+}
+
 // ==================== WORKFLOW DETAIL ====================
 export function WorkflowDetail() {
   const { id } = useParams();
@@ -336,19 +406,13 @@ export function WorkflowDetail() {
         </div>
       </div>
       <div className="rounded-xl p-5" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
-        <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>مراحل Workflow</h2>
-        <div className="space-y-3">
-          {workflow.stepDetails?.map((step: any, i: number) => (
-            <div key={i} className="flex items-center gap-4 p-4 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)' }}>
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold">{i + 1}</div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{step.name}</h3>
-                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{step.description}</p>
-              </div>
-              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Timeout: {step.timeout}s</span>
-            </div>
-          ))}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>مراحل Workflow</h2>
+          <span className="text-xs px-2 py-1 rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+            🖱️ Drag & Drop برای تغییر ترتیب
+          </span>
         </div>
+        <SortableSteps steps={workflow.stepDetails || []} />
       </div>
       <div className="rounded-xl p-5" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
         <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>تنظیمات</h2>
@@ -369,14 +433,36 @@ export function WorkflowDetail() {
 export function WorkflowCreate() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ name: '', description: '', allowParallel: 'true' });
-  const [steps, setSteps] = useState(['planner', 'developer', 'reviewer']);
+  const [selectedSteps, setSelectedSteps] = useState<string[]>(['planner', 'developer', 'reviewer']);
   const [submitting, setSubmitting] = useState(false);
 
-  const addStep = () => setSteps([...steps, '']);
-  const removeStep = (i: number) => setSteps(steps.filter((_, idx) => idx !== i));
-  const updateStep = (i: number, value: string) => { const newSteps = [...steps]; newSteps[i] = value; setSteps(newSteps); };
+  // لیست مراحل موجود
+  const availableSteps = [
+    { id: 'planner', name: 'برنامه‌ریز', description: 'تحلیل تسک و ایجاد Plan' },
+    { id: 'architect', name: 'معمار', description: 'طراحی معماری سیستم' },
+    { id: 'developer', name: 'توسعه‌دهنده', description: 'پیاده‌سازی کد' },
+    { id: 'tester', name: 'تست‌نویس', description: 'نوشتن و اجرای تست' },
+    { id: 'reviewer', name: 'بازبین', description: 'بازبینی کد' },
+    { id: 'security-reviewer', name: 'بازبین امنیتی', description: 'بررسی امنیتی' },
+    { id: 'qa', name: 'کنترل کیفیت', description: 'تست نهایی و QA' },
+  ];
 
-  const handleSubmit = async () => { setSubmitting(true); await workflowsApi.create({ ...formData, steps: steps.filter(s => s) }); setSubmitting(false); navigate('/workflows'); };
+  const addStep = (stepId: string) => {
+    if (!selectedSteps.includes(stepId)) {
+      setSelectedSteps([...selectedSteps, stepId]);
+    }
+  };
+
+  const removeStep = (index: number) => {
+    setSelectedSteps(selectedSteps.filter((_, idx) => idx !== index));
+  };
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    await workflowsApi.create({ ...formData, steps: selectedSteps });
+    setSubmitting(false);
+    navigate('/workflows');
+  };
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -394,16 +480,52 @@ export function WorkflowCreate() {
               { value: 'true', label: 'مجاز' }, { value: 'false', label: 'غیرمجاز' },
             ]} />
           </FormField>
-          <FormField label="مراحل">
-            <div className="space-y-2">
-              {steps.map((step, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <span className="text-xs w-6 text-center" style={{ color: 'var(--text-muted)' }}>{i + 1}</span>
-                  <Input value={step} onChange={v => updateStep(i, v)} placeholder="نام مرحله" />
-                  <button onClick={() => removeStep(i)} className="p-2 text-red-500"><Trash2 size={14} /></button>
+          <FormField label="مراحل Workflow" hint="مراحل مورد نظر را از لیست زیر انتخاب کنید">
+            <div className="space-y-3">
+              {/* مراحل انتخاب شده */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>مراحل انتخاب شده ({selectedSteps.length})</label>
+                {selectedSteps.map((stepId, i) => {
+                  const step = availableSteps.find(s => s.id === stepId);
+                  return (
+                    <div key={i} className="flex items-center gap-3 p-3 rounded-lg" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+                      <span className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
+                        {i + 1}
+                      </span>
+                      <div className="flex-1">
+                        <div className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{step?.name}</div>
+                        <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{step?.description}</div>
+                      </div>
+                      <button onClick={() => removeStep(i)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* مراحل موجود برای انتخاب */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>مراحل موجود</label>
+                <div className="grid grid-cols-1 gap-2">
+                  {availableSteps
+                    .filter(step => !selectedSteps.includes(step.id))
+                    .map(step => (
+                      <button
+                        key={step.id}
+                        onClick={() => addStep(step.id)}
+                        className="flex items-center gap-3 p-3 rounded-lg text-right hover:shadow-md transition-all"
+                        style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}
+                      >
+                        <Plus size={16} className="text-indigo-500 shrink-0" />
+                        <div className="flex-1">
+                          <div className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{step.name}</div>
+                          <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{step.description}</div>
+                        </div>
+                      </button>
+                    ))}
                 </div>
-              ))}
-              <button onClick={addStep} className="flex items-center gap-1 text-sm text-indigo-500"><Plus size={14} />افزودن مرحله</button>
+              </div>
             </div>
           </FormField>
           <div className="flex items-center gap-3 pt-4">
