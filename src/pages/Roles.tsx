@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { rolesApi } from '../services/api';
-import { Users, Shield, Eye, Code, TestTube, Brain, Lock } from 'lucide-react';
+import { Users, Shield, Eye, Code, TestTube, Brain, Lock, Plus } from 'lucide-react';
 
 export default function Roles() {
   const [roles, setRoles] = useState<any[]>([]);
@@ -26,14 +27,20 @@ export default function Roles() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>نقش‌ها</h1>
-        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>تعریف نقش‌ها و مسئولیت‌ها</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>نقش‌ها</h1>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>تعریف نقش‌ها و مسئولیت‌ها</p>
+        </div>
+        <Link to="/roles/new" className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/20">
+          <Plus size={16} />
+          نقش جدید
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {roles.map(role => (
-          <div key={role.id} className="p-5 rounded-xl transition-all hover:shadow-md" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+          <Link key={role.id} to={`/roles/${role.id}`} className="block p-5 rounded-xl transition-all hover:shadow-md" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
             <div className="flex items-center gap-3 mb-3">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'var(--bg-tertiary)' }}>
                 {getRoleIcon(role.name)}
@@ -59,7 +66,7 @@ export default function Roles() {
                 ))}
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

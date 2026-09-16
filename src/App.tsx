@@ -22,7 +22,13 @@ import Workspace from './pages/Workspace';
 import SettingsPage from './pages/Settings';
 
 // Detail & Create pages
-import ProjectDetail from './pages/projects/ProjectDetail';
+import ProjectLayout from './pages/projects/ProjectLayout';
+import ProjectOverview from './pages/projects/ProjectOverview';
+import ProjectTasks from './pages/projects/ProjectTasks';
+import ProjectGit from './pages/projects/ProjectGit';
+import ProjectWorkspace from './pages/projects/ProjectWorkspace';
+import ProjectTeam from './pages/projects/ProjectTeam';
+import ProjectSettings from './pages/projects/ProjectSettings';
 import ProjectCreate from './pages/projects/ProjectCreate';
 import TaskDetail from './pages/tasks/TaskDetail';
 import TaskCreate from './pages/tasks/TaskCreate';
@@ -55,7 +61,14 @@ export default function App() {
             {/* Projects */}
             <Route path="/projects" element={<Projects />} />
             <Route path="/projects/new" element={<ProjectCreate />} />
-            <Route path="/projects/:id" element={<ProjectDetail />} />
+            <Route path="/projects/:id" element={<ProjectLayout />}>
+              <Route index element={<ProjectOverview />} />
+              <Route path="tasks" element={<ProjectTasks />} />
+              <Route path="git" element={<ProjectGit />} />
+              <Route path="workspace" element={<ProjectWorkspace />} />
+              <Route path="team" element={<ProjectTeam />} />
+              <Route path="settings" element={<ProjectSettings />} />
+            </Route>
             
             {/* Tasks */}
             <Route path="/tasks" element={<Tasks />} />
